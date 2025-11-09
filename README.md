@@ -1,0 +1,1 @@
+This is a full version of my personal web project. Reason mainly for open source is so I can host it officially using Git. Anyways feel free to have a look at what I have made and see what you can do. Dont be confused by any of the content in the code its relationg to other projects. Cheers!
