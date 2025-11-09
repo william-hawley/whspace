@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futuristic OS v22.0</title>
+    <style>
+        :root { /* Guest Theme (Light Mode) */
+            --wallpaper-gradient-1: #a1c4fd; --wallpaper-gradient-2: #c2e9fb;
+            --system-font-color: #333; --accent-color: #007AFF;
+            --glass-bg: rgba(255, 255, 255, 0.55); --glass-border: rgba(0, 0, 0, 0.1);
+            --window-shadow: rgba(0, 0, 0, 0.15); --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --backdrop-blur: blur(24px);
+        }
+        #desktop.user-mode { /* User Theme (Dark Mode) */
+            --wallpaper-gradient-1: #434371; --wallpaper-gradient-2: #232526;
+            --system-font-color: #FFFFFF; --accent-color: #E0218A;
+            --glass-bg: rgba(30, 30, 30, 0.4); --glass-border: rgba(255, 255, 255, 0.15);
+            --window-shadow: rgba(0, 0, 0, 0.3);
+        }
+        #desktop.admin-mode { /* Admin Theme (Premium Dark) */
+            --wallpaper-gradient-1: #a67c00; --wallpaper-gradient-2: #1e1e1e;
+            --system-font-color: #FFFFFF; --accent-color: #FFD700;
+            --glass-bg: rgba(20, 20, 20, 0.5); --glass-border: rgba(255, 215, 0, 0.2);
+            --window-shadow: rgba(255, 215, 0, 0.2);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+        html, body { height: 100%; width: 100%; overflow: hidden; font-family: var(--font-family); background: #000; }
+        
+        #desktop-wallpaper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, var(--wallpaper-gradient-1), var(--wallpaper-gradient-2)); animation: gradient-animation 15s ease infinite; background-size: 200% 200%; }
+        #noise-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiGAAAAA1BMVEX///+nxBvIAAAAIElEQVR42mP4BwL4/x8IwPh/B4T/f4Cc/08C+v8/AHDkZwjk4LrwAAAAAElFTkSuQmCC'); opacity: 0.05; pointer-events: none; }
+        #desktop { position: relative; width: 100%; height: 100%; display: none; }
+        .glass-panel { background: var(--glass-bg); backdrop-filter: var(--backdrop-blur); -webkit-backdrop-filter: var(--backdrop-blur); border: 1px solid var(--glass-border); box-shadow: 0 8px 32px 0 var(--window-shadow); transition: background 0.3s, border 0.3s; }
+        #menu-bar { position: absolute; top: 0; width: 100%; height: 30px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; font-size: 14px; z-index: 5000; color: var(--system-font-color); }
+        .menu-item { cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 5px; transition: background 0.2s; }
+        .menu-item:hover { background: var(--glass-bg); }
+        .dropdown-menu { display: none; position: absolute; top: 32px; padding: 5px; width: 220px; border-radius: 12px; }
+        .dropdown-menu.show { display: block; }
+        .dropdown-item { padding: 8px 12px; border-radius: 8px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .dropdown-item:hover { background-color: var(--accent-color); color: white; }
+        #dock { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); height: 60px; display: flex; align-items: center; padding: 0 8px; gap: 8px; border-radius: 20px; z-index: 5000; }
+        .dock-item { font-size: 32px; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center; color: var(--system-font-color); cursor: pointer; transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .admin-only { display: none; }
+        #power-on-button { width: 100px; height: 100px; background: none; border: 3px solid #555; color: #555; border-radius: 50%; font-size: 40px; cursor: pointer; transition: all 0.3s; }
+        #power-on-button:hover { color: var(--accent-color); border-color: var(--accent-color); box-shadow: 0 0 25px var(--accent-color); }
+
+        #clock-applet { position: absolute; top: 32px; right: 10px; width: 280px; padding: 15px; border-radius: 12px; z-index: 4999; display: none; flex-direction: column; gap: 15px; }
+        #clock-applet.show { display: flex; }
+        #clock-applet-time { font-size: 42px; font-weight: 600; text-align: center; }
+        #clock-applet-date { text-align: center; font-size: 14px; opacity: 0.8; }
+        #calendar-week-view { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+        .calendar-day .day-name { font-size: 12px; font-weight: 500; opacity: 0.6; }
+        .calendar-day .day-number { font-size: 14px; font-weight: 600; width: 28px; height: 28px; line-height: 28px; border-radius: 50%; margin: 5px auto 0; }
+        .calendar-day .day-number.today { background-color: var(--accent-color); color: white; }
+        
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10000; transition: opacity 0.5s ease-in-out; color: white; opacity: 0; visibility: hidden; }
+        .overlay.active { opacity: 1; visibility: visible; }
+        #login-screen { background: none; }
+        .progress-bar-container { width: 300px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1); margin-top: 25px; }
+        .progress-bar { width: 0%; height: 100%; background: #fff; border-radius: 3px; box-shadow: 0 0 10px #fff; transition: width 3s ease-out; }
+        #login-box { text-align: center; width: 350px; padding: 40px; border-radius: 20px; position: relative; }
+        .login-input { width: 100%; margin-top: 20px; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--system-font-color); font-size:16px; }
+        .login-button { width: 100%; margin-top: 15px; padding: 12px; background: var(--accent-color); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
+        #login-power-down { position: absolute; bottom: 10px; right: 15px; font-size: 20px; color: var(--system-font-color); opacity: 0.5; cursor: pointer; transition: opacity 0.2s; }
+        
+        .window { position: absolute; border-radius: 16px; display: none; flex-direction: column; resize: both; overflow: hidden; opacity: 0; transform: translateY(50px) scale(0.95); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .window.open { display: flex; opacity: 1; transform: translateY(0) scale(1); }
+        .window-header { height: 40px; display: flex; align-items: center; padding: 0 15px; cursor: move; color: var(--system-font-color); font-weight: 600; border-bottom: 1px solid var(--glass-border); flex-shrink: 0; }
+        .window-controls { display: flex; gap: 8px; }
+        .window-control { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; }
+        .window-control.close { background-color: #ff5f57; }
+        .window-control.close i { color: #9d252b; font-size: 8px; font-weight: bold; opacity: 1; }
+        .window-control.export, #notepad-sidebar-toggle { font-size: 14px; width: auto; height: auto; padding: 2px 5px; border-radius: 5px; background: rgba(0,0,0,0.1); }
+        .window-title { flex-grow: 1; text-align: center; }
+        .window-body { flex-grow: 1; padding: 0; overflow-y: auto; color: var(--system-font-color); display: flex; }
+        
+        #notepad-sidebar { width: 200px; border-right: 1px solid var(--glass-border); flex-shrink: 0; display: flex; flex-direction: column; transition: width 0.3s ease, padding 0.3s ease; }
+        #notepad-sidebar.collapsed { width: 0; border-right-color: transparent; }
+        #notepad-sidebar.collapsed > * { display: none; }
+        #notepad-header { padding: 10px; border-bottom: 1px solid var(--glass-border); }
+        #add-note-btn { width: 100%; padding: 8px; background: var(--accent-color); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: background-color 0.2s; }
+        #add-note-btn:hover { background: color-mix(in srgb, var(--accent-color) 80%, black); }
+        #note-list { flex-grow: 1; overflow-y: auto; }
+        .note-item { display: flex; align-items: center; justify-content: space-between; padding: 10px; cursor: pointer; border-bottom: 1px solid var(--glass-border); opacity: 0.7; }
+        .note-item.active { opacity: 1; font-weight: bold; background: rgba(0,0,0,0.05); }
+        .note-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; }
+        .delete-note-btn { color: #ff5555; padding: 2px 5px; border-radius: 4px; visibility: hidden; }
+        .note-item:hover .delete-note-btn { visibility: visible; }
+        #notepad-main { flex-grow: 1; padding: 15px; display: flex; flex-direction: column; }
+        #notepad-textarea { width: 100%; height: 100%; background: transparent; border: none; color: var(--system-font-color); font-size: 16px; line-height: 1.6; resize: none; flex-grow: 1; }
+        
+        #prompt-overlay { z-index: 9999; background: rgba(0,0,0,0.5); }
+        #prompt-box { width: 320px; padding: 25px; border-radius: 16px; }
+        #prompt-box p { font-size: 18px; margin-bottom: 20px; color: var(--system-font-color); }
+        #prompt-buttons { display: flex; gap: 10px; justify-content: flex-end; }
+        .prompt-btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; transition: transform 0.1s, opacity 0.2s; }
+        .prompt-btn:hover { opacity: 0.8; }
+        .prompt-btn:active { transform: scale(0.95); }
+        #prompt-confirm { background: var(--accent-color); color: white; }
+        #prompt-cancel { background: rgba(0,0,0,0.1); color: var(--system-font-color); }
+        
+        #sys-info-container { width: 100%; padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; align-content: start; }
+        .info-card { background: rgba(0,0,0,0.1); padding: 15px; border-radius: 12px; }
+        .info-card .label { font-size: 12px; opacity: 0.7; margin-bottom: 5px; }
+        .info-card .value { font-size: 18px; font-weight: 600; color: var(--accent-color); word-wrap: break-word; }
+        
+        #admin-panel-grid { width: 100%; padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .user-card { background: rgba(0,0,0,0.1); padding: 15px; border-radius: 12px; }
+        .user-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .user-card-header i { font-size: 24px; color: var(--accent-color); }
+        .user-card-header .username { font-size: 18px; font-weight: 600; }
+        .user-card .role { font-size: 12px; background: var(--accent-color); color: white; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+        .user-card .password { font-size: 14px; margin-top: 10px; opacity: 0.7; word-wrap: break-word; }
+        
+        @keyframes gradient-animation { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div id="desktop-wallpaper"></div>
+    <div id="noise-overlay"></div>
+    
+    <div id="preparing-screen" class="overlay"><p>SYSTEM PREPARING</p><div class="progress-bar-container" style="width:200px;height:4px;"><div id="preparing-progress-bar" class="progress-bar" style="transition:width 1.8s ease-out;"></div></div></div>
+    <div id="power-off-screen" class="overlay"><button id="power-on-button" title="Power On"><i class="fa-solid fa-power-off"></i></button></div>
+    <div id="startup-screen" class="overlay"><div id="boot-sequence" style="font-family: 'Courier New', Courier, monospace; font-size: 16px; line-height: 1.6; width: 450px;"></div></div>
+    <div id="boot-logo-screen" class="overlay"><div id="boot-logo"><i class="fa-solid fa-circle-nodes"></i></div><div class="progress-bar-container"><div id="boot-progress-bar" class="progress-bar"></div></div></div>
+    <div id="shutdown-screen" class="overlay"><p>Shutting Down...</p></div>
+
+    <div id="login-screen" class="overlay">
+        <div id="login-box" class="glass-panel">
+            <h2 style="color:var(--system-font-color);">Sign In</h2><div id="login-error" style="color:#ff5555; height:20px; margin-top:10px; font-size:14px;"></div>
+            <input id="username" type="text" class="login-input" placeholder="Username" autocomplete="off">
+            <input id="password" type="password" class="login-input" placeholder="Password">
+            <button id="login-button" class="login-button">Sign In</button>
+            <button id="guest-login-button" class="login-button" style="background:none; border:1px solid var(--glass-border); color:var(--system-font-color); margin-top:8px;">Login as Guest</button>
+            <i id="login-power-down" class="fa-solid fa-power-off" title="Power Down"></i>
+        </div>
+    </div>
+
+    <div id="prompt-overlay" class="overlay">
+        <div id="prompt-box" class="glass-panel">
+            <p id="prompt-message"></p>
+            <div id="prompt-buttons">
+                <button id="prompt-cancel" class="prompt-btn">Cancel</button>
+                <button id="prompt-confirm" class="prompt-btn">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="desktop">
+        <div id="menu-bar" class="glass-panel">
+            <div id="system-menu-container" class="menu-item"><i class="fa-solid fa-circle-nodes"></i><span>F-OS</span><div id="system-menu" class="dropdown-menu glass-panel"><div class="dropdown-item" id="logout-button"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></div><div class="dropdown-item power-down" style="color:#ff5555;"><i class="fa-solid fa-power-off"></i><span>Power Down</span></div></div></div>
+            <div id="menu-bar-clock" class="menu-item"></div>
+        </div>
+        <div id="clock-applet" class="glass-panel"><div id="clock-applet-time"></div><div id="clock-applet-date"></div><div id="calendar-week-view"></div></div>
+        <div id="dock" class="glass-panel">
+            <div class="dock-item" data-app="notepad" title="Notepad"><i class="fa-solid fa-file-alt"></i></div>
+            <div class="dock-item" data-app="system-info" title="System Info"><i class="fa-solid fa-microchip"></i></div>
+            <div class="dock-item admin-only" data-app="admin-panel" title="Admin Panel"><i class="fa-solid fa-user-shield"></i></div>
+        </div>
+        
+        <div id="notepad-window" class="window glass-panel">
+            <div class="window-header"><div class="window-controls"><div id="notepad-sidebar-toggle" class="window-control export" title="Toggle Sidebar"><i class="fa-solid fa-bars"></i></div><div class="window-control close"><i class="fa-solid fa-times"></i></div></div><span class="window-title">Notepad</span><div id="notepad-export-button" class="window-control export" title="Export Note"><i class="fa-solid fa-download"></i></div></div>
+            <div class="window-body"><div id="notepad-sidebar"><div id="notepad-header"><button id="add-note-btn"><i class="fa-solid fa-plus"></i> New Note</button></div><div id="note-list"></div></div><div id="notepad-main"><textarea id="notepad-textarea"></textarea></div></div>
+        </div>
+        <div id="system-info-window" class="window glass-panel">
+            <div class="window-header"><div class="window-controls"><div class="window-control close"><i class="fa-solid fa-times"></i></div></div><span class="window-title">System Information</span></div>
+            <div id="sys-info-container" class="window-body" style="overflow-y:auto;"></div>
+        </div>
+        <div id="admin-panel-window" class="window glass-panel">
+            <div class="window-header"><div class="window-controls"><div class="window-control close"><i class="fa-solid fa-times"></i></div></div><span class="window-title">Admin Panel: User Credentials</span></div>
+            <div id="admin-panel-grid" class="window-body" style="overflow-y:auto;"></div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        //======================================================================
+        // NEW, STABLE FRAMEWORK (v22.0)
+        // This version features a rewritten core for stability and correctness.
+        //======================================================================
+        const FOS = {
+            config: { userAccounts: [{ username: 'admin', password: 'password123', role: 'admin' }, { username: 'user', password: 'password', role: 'user' }, { username: 'guest', password: '', role: 'guest' }] },
+            state: { activeUser: null, highestZIndex: 100, clockInterval: null, windows: {}, activeDrag: { isDragging: false }, notepad: { notes: [], activeNoteId: null, saveTimeout: null } },
+            DOM: {},
+
+            init() {
+                this.cacheDomElements();
+                this.Apps.initWindows();
+                this.attachEventListeners();
+                this.System.transitionTo('preparing');
+                setTimeout(() => this.DOM.preparingProgressBar.style.width = '100%', 100);
+                setTimeout(() => this.System.transitionTo('off'), 2200);
+            },
+            cacheDomElements() {
+                const ids = ['desktop', 'power-off-screen', 'preparing-screen', 'startup-screen', 'boot-logo-screen', 'shutdown-screen', 'login-screen', 'username', 'password', 'login-error', 'dock', 'clock-applet', 'boot-sequence', 'boot-progress-bar', 'menu-bar-clock', 'clock-applet-time', 'clock-applet-date', 'calendar-week-view', 'notepad-textarea', 'sys-info-container', 'admin-panel-grid', 'preparing-progress-bar', 'add-note-btn', 'note-list', 'prompt-overlay', 'prompt-message', 'prompt-confirm', 'prompt-cancel', 'login-power-down', 'power-on-button', 'login-button', 'guest-login-button', 'logout-button', 'notepad-sidebar', 'notepad-sidebar-toggle', 'notepad-export-button'];
+                ids.forEach(id => { const camelCaseId = id.replace(/-([a-z])/g, g => g[1].toUpperCase()); this.DOM[camelCaseId] = document.getElementById(id); });
+                this.DOM.screens = { preparing: this.DOM.preparingScreen, off: this.DOM.powerOffScreen, booting: this.DOM.startupScreen, 'boot-logo': this.DOM.bootLogoScreen, shutdown: this.DOM.shutdownScreen, login: this.DOM.loginScreen };
+            },
+
+            System: {
+                transitionTo(screenName, callback) { Object.values(FOS.DOM.screens).forEach(screen => screen.classList.remove('active')); FOS.DOM.desktop.style.display = 'none'; if (screenName === 'desktop') { FOS.DOM.desktop.style.display = 'block'; } else if (FOS.DOM.screens[screenName]) { FOS.DOM.screens[screenName].classList.add('active'); } if (callback) callback(); },
+                startup() { this.transitionTo('booting', () => { const bootLines = ['F-OS Core v22.0 Initializing...', 'Checking memory......[OK]', 'Loading kernel.......[OK]', 'Mounting filesystem..[OK]', 'Starting UI..........[DONE]']; const bootEl = FOS.DOM.bootSequence; bootEl.innerHTML = ''; let i = 0; const interval = setInterval(() => { if (i < bootLines.length) { const line = document.createElement('div'); line.textContent = bootLines[i++]; bootEl.appendChild(line); } else { clearInterval(interval); setTimeout(() => this.transitionTo('boot-logo', () => { FOS.DOM.bootProgressBar.style.width = '100%'; setTimeout(() => this.transitionTo('login'), 3500); }), 500); } }, 400); }); },
+                login(username, password) { const user = FOS.config.userAccounts.find(u => u.username.toLowerCase() === username.toLowerCase()); if (user && user.password === password) { FOS.state.activeUser = user; FOS.DOM.loginError.textContent = ''; this.transitionTo('desktop', () => FOS.Desktop.init()); } else { FOS.DOM.loginError.textContent = 'Invalid credentials.'; } },
+                logout() { FOS.Desktop.shutdown(); FOS.state.activeUser = null; this.transitionTo('login'); },
+                shutdown() { FOS.Desktop.shutdown(); FOS.state.activeUser = null; this.transitionTo('shutdown', () => setTimeout(() => this.transitionTo('off'), 1500)); }
+            },
+
+            Desktop: {
+                init() { FOS.UI.setTheme(FOS.state.activeUser.role); this.startClock(); if (FOS.state.activeUser.role === 'admin') FOS.Apps.populateAdminPanel(); },
+                shutdown() { this.stopClock(); Object.values(FOS.state.windows).forEach(win => { if (win.el.classList.contains('open')) FOS.Apps.closeWindow(win.el); }); document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show')); FOS.DOM.clockApplet.classList.remove('show'); },
+                startClock() { if (FOS.state.clockInterval) clearInterval(FOS.state.clockInterval); const update = () => { const now = new Date(); FOS.DOM.menuBarClock.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); if (FOS.DOM.clockApplet.classList.contains('show')) this.updateClockApplet(now); }; update(); FOS.state.clockInterval = setInterval(update, 1000); },
+                stopClock() { clearInterval(FOS.state.clockInterval); FOS.state.clockInterval = null; },
+                toggleClockApplet() { const isVisible = FOS.DOM.clockApplet.classList.toggle('show'); if (isVisible) this.updateClockApplet(new Date()); },
+                updateClockApplet(now) { FOS.DOM.clockAppletTime.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }); FOS.DOM.clockAppletDate.textContent = now.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); const calendarView = FOS.DOM.calendarWeekView; calendarView.innerHTML = ''; const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; const todayIndex = now.getDay(); const weekStart = new Date(now); weekStart.setDate(now.getDate() - todayIndex); for (let i = 0; i < 7; i++) { const day = new Date(weekStart); day.setDate(weekStart.getDate() + i); const dayEl = document.createElement('div'); dayEl.className = 'calendar-day'; dayEl.innerHTML = `<div class="day-name">${dayNames[i]}</div><div class="day-number ${i === todayIndex ? 'today' : ''}">${day.getDate()}</div>`; calendarView.appendChild(dayEl); } }
+            },
+
+            Notepad: {
+                init() {
+                    this.notes = JSON.parse(localStorage.getItem('notes')) || [];
+                    if (this.notes.length === 0) this.addNew(false);
+                    this.activeNoteId = this.notes.length > 0 ? this.notes[0].id : null;
+                    this.render(); this.load();
+                },
+                render() {
+                    FOS.DOM.noteList.innerHTML = '';
+                    this.notes.forEach(note => {
+                        const item = document.createElement('div');
+                        item.className = 'note-item';
+                        if (note.id === this.activeNoteId) item.classList.add('active');
+                        item.dataset.noteId = note.id;
+                        const title = document.createElement('span');
+                        title.className = 'note-title';
+                        title.textContent = note.content.substring(0, 20).split('\n')[0] || 'New Note';
+                        item.appendChild(title);
+                        const deleteBtn = document.createElement('i');
+                        deleteBtn.className = 'fa-solid fa-trash-alt delete-note-btn';
+                        item.appendChild(deleteBtn);
+                        FOS.DOM.noteList.appendChild(item);
+                    });
+                },
+                load() { const note = this.notes.find(n => n.id === this.activeNoteId); FOS.DOM.notepadTextarea.value = note ? note.content : ''; },
+                save() { const note = this.notes.find(n => n.id === this.activeNoteId); if (note) { note.content = FOS.DOM.notepadTextarea.value; localStorage.setItem('notes', JSON.stringify(this.notes)); this.render(); } },
+                handleInput() { clearTimeout(this.saveTimeout); this.saveTimeout = setTimeout(() => this.save(), 300); },
+                select(id) { this.activeNoteId = id; this.load(); this.render(); },
+                addNew(setActive = true) { const newNote = { id: Date.now(), content: '' }; this.notes.unshift(newNote); if (setActive) { this.activeNoteId = newNote.id; this.load(); } this.save(); },
+                delete(id) { FOS.UI.showPrompt('Delete this note permanently?', () => { this.notes = this.notes.filter(n => n.id !== id); if (this.activeNoteId === id) { this.activeNoteId = this.notes.length > 0 ? this.notes[0].id : null; } this.save(); this.load(); }); },
+                export() { FOS.UI.showPrompt('Export this note as a .txt file?', () => { const note = this.notes.find(n => n.id === this.activeNoteId); if (!note) return; const blob = new Blob([note.content], { type: 'text/plain' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `note-${note.id}.txt`; a.click(); URL.revokeObjectURL(url); }); }
+            },
+
+            Apps: {
+                initWindows() { document.querySelectorAll('.window').forEach(win => { FOS.state.windows[win.id] = { el: win, lastPosition: {}, isSnapped: false }; }); },
+                open(appId) { const win = FOS.state.windows[`${appId}-window`]; if (!win) return; this.bringToFront(win.el); const winEl = win.el; if (appId === 'games') { winEl.style.top = '30px'; winEl.style.left = '0'; winEl.style.width = '100vw'; winEl.style.height = 'calc(100vh - 40px)'; win.isSnapped = true; } else { winEl.style.width = '50vw'; winEl.style.height = '60vh'; winEl.style.top = `calc(50% - 30vh)`; winEl.style.left = `calc(50% - 25vw)`; } winEl.classList.add('open'); if (appId === 'system-info') this.populateSystemInfo(); if (appId === 'notepad') FOS.Notepad.init(); },
+                closeWindow(winEl) { winEl.classList.remove('open'); },
+                bringToFront(winEl) { winEl.style.zIndex = ++FOS.state.highestZIndex; },
+                startDrag(e, winEl) { this.bringToFront(winEl); const winState = FOS.state.windows[winEl.id]; if (winState.isSnapped) { const rect = winEl.getBoundingClientRect(); const lastWidth = winState.lastPosition.width || 600; winEl.style.width = `${lastWidth}px`; winEl.style.height = `${winState.lastPosition.height || 400}px`; FOS.state.activeDrag.offsetX = (e.clientX - rect.left) * (lastWidth / rect.width); FOS.state.activeDrag.offsetY = e.clientY - rect.top; winState.isSnapped = false; } else { FOS.state.activeDrag.offsetX = e.clientX - winEl.offsetLeft; FOS.state.activeDrag.offsetY = e.clientY - winEl.offsetTop; } FOS.state.activeDrag.isDragging = true; FOS.state.activeDrag.element = winEl; },
+                drag(e) { if (!FOS.state.activeDrag.isDragging) return; const winEl = FOS.state.activeDrag.element; const newY = e.clientY - FOS.state.activeDrag.offsetY; winEl.style.left = `${e.clientX - FOS.state.activeDrag.offsetX}px`; winEl.style.top = `${Math.max(30, newY)}px`; },
+                stopDrag(e) { if (!FOS.state.activeDrag.isDragging) return; const winEl = FOS.state.activeDrag.element; const winState = FOS.state.windows[winEl.id]; winState.lastPosition = { top: winEl.offsetTop, left: winEl.offsetLeft, width: winEl.offsetWidth, height: winEl.offsetHeight }; const snapMargin = 10; if (e.clientY < (snapMargin + 30)) { winEl.style.top = '30px'; winEl.style.left = '0'; winEl.style.width = '100vw'; winEl.style.height = 'calc(100vh - 30px)'; winState.isSnapped = true; } else if (e.clientX < snapMargin) { winEl.style.top = '30px'; winEl.style.left = '0'; winEl.style.width = '50vw'; winEl.style.height = 'calc(100vh - 30px)'; winState.isSnapped = true; } else if (e.clientX > window.innerWidth - snapMargin) { winEl.style.top = '30px'; winEl.style.left = '50vw'; winEl.style.width = '50vw'; winEl.style.height = 'calc(100vh - 30px)'; winState.isSnapped = true; } else if (e.clientY > window.innerHeight - snapMargin) { winEl.style.width = '50vw'; winEl.style.height = '60vh'; winEl.style.top = `calc(50% - 30vh)`; winEl.style.left = `calc(50% - 25vw)`; winState.isSnapped = false; } FOS.state.activeDrag.isDragging = false; },
+                populateSystemInfo: async () => { if (!FOS.state.activeUser) return; const container = FOS.DOM.sysInfoContainer; container.innerHTML = ''; const info = { Account: FOS.state.activeUser.username, Role: FOS.state.activeUser.role, Date: new Date().toLocaleDateString(), Browser: (navigator.userAgent.match(/(Firefox|Chrome|Safari|Edg)\/([\d.]+)/) || [])[0] || 'Unknown', Device: navigator.userAgentData?.platform || (navigator.userAgent.split(/[()]/)[1]?.split(';')[0]) || 'Unknown' }; for(const [key, value] of Object.entries(info)) { container.innerHTML += `<div class="info-card"><div class="label">${key}</div><div class="value">${value}</div></div>`; } const ipCard = document.createElement('div'); ipCard.className = 'info-card'; ipCard.innerHTML = `<div class="label">IP Address</div><div class="value" id="info-ip-val">Fetching...</div>`; container.appendChild(ipCard); const countryCard = document.createElement('div'); countryCard.className = 'info-card'; countryCard.innerHTML = `<div class="label">Country</div><div class="value" id="info-country-val">Fetching...</div>`; container.appendChild(countryCard); try { const res = await fetch('https://ipapi.co/json/'), data = await res.json(); document.getElementById('info-ip-val').textContent = data.ip; document.getElementById('info-country-val').textContent = data.country_name; } catch (e) { document.getElementById('info-ip-val').textContent = 'Unavailable'; document.getElementById('info-country-val').textContent = 'Unavailable'; } },
+                populateAdminPanel: () => { const container = FOS.DOM.adminPanelGrid; container.innerHTML = ''; FOS.config.userAccounts.forEach(user => { if (user.role === 'guest') return; const card = document.createElement('div'); card.className = 'user-card'; card.innerHTML = `<div class="user-card-header"><i class="fa-solid fa-${user.role === 'admin' ? 'user-shield' : 'user'}"></i><span class="username">${user.username}</span></div><span class="role">${user.role}</span><p class="password">Password: ${user.password}</p>`; container.appendChild(card); }); }
+            },
+            UI: {
+                setTheme: (role) => { FOS.DOM.desktop.classList.remove('user-mode', 'admin-mode'); if (role === 'user') FOS.DOM.desktop.classList.add('user-mode'); if (role === 'admin') FOS.DOM.desktop.classList.add('admin-mode'); document.querySelectorAll('.admin-only').forEach(el => { el.style.display = role === 'admin' ? 'flex' : 'none'; }); },
+                handleDockHover: (e) => { if (!e.target.closest('.dock-item')) { FOS.UI.resetDockHover(); return; } const target = e.target.closest('.dock-item'); const items = [...FOS.DOM.dock.children].filter(el => el.classList.contains('dock-item')); const targetIndex = items.indexOf(target); items.forEach((item, i) => { const distance = Math.abs(targetIndex - i); const scale = Math.max(1, 1.5 - distance * 0.2); item.style.transform = `scale(${scale})`; }); },
+                resetDockHover: () => [...FOS.DOM.dock.children].forEach(item => item.style.transform = 'scale(1)'),
+                showPrompt(message, onConfirm) { FOS.DOM.promptMessage.textContent = message; FOS.DOM.promptOverlay.classList.add('active'); const confirmHandler = () => { onConfirm(); cleanup(); }; const cancelHandler = () => cleanup(); const cleanup = () => { FOS.DOM.promptOverlay.classList.remove('active'); FOS.DOM.promptConfirm.removeEventListener('click', confirmHandler); FOS.DOM.promptCancel.removeEventListener('click', cancelHandler); }; FOS.DOM.promptConfirm.addEventListener('click', confirmHandler); FOS.DOM.promptCancel.addEventListener('click', cancelHandler); }
+            },
+
+            attachEventListeners() {
+                this.DOM.powerOnButton.addEventListener('click', () => this.System.startup());
+                this.DOM.loginButton.addEventListener('click', () => this.System.login(this.DOM.username.value, this.DOM.password.value));
+                this.DOM.guestLoginButton.addEventListener('click', () => this.System.login('guest', ''));
+                this.DOM.logoutButton.addEventListener('click', () => this.System.logout());
+                document.querySelectorAll('.power-down').forEach(el => el.addEventListener('click', () => this.System.shutdown()));
+                this.DOM.loginPowerDown.addEventListener('click', () => this.System.shutdown());
+                document.querySelectorAll('.menu-item[id]').forEach(c => { if(c.querySelector('.dropdown-menu')) c.addEventListener('click', (e) => { e.stopPropagation(); c.querySelector('.dropdown-menu').classList.toggle('show'); }); });
+                this.DOM.menuBarClock.addEventListener('click', (e) => { e.stopPropagation(); this.Desktop.toggleClockApplet(); });
+                document.body.addEventListener('click', (e) => { document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show')); if (!e.target.closest('#clock-applet')) this.DOM.clockApplet.classList.remove('show'); });
+                this.DOM.dock.addEventListener('mousemove', (e) => this.UI.handleDockHover(e));
+                this.DOM.dock.addEventListener('mouseleave', () => this.UI.resetDockHover());
+                document.querySelectorAll('[data-app]').forEach(launcher => launcher.addEventListener('click', () => this.Apps.open(launcher.dataset.app)));
+                
+                this.DOM.addNoteBtn.addEventListener('click', () => this.Notepad.addNew());
+                this.DOM.notepadTextarea.addEventListener('input', () => this.Notepad.handleInput());
+                this.DOM.notepadSidebarToggle.addEventListener('click', () => this.DOM.notepadSidebar.classList.toggle('collapsed'));
+                this.DOM.noteList.addEventListener('click', (e) => {
+                    const item = e.target.closest('.note-item'); if (!item) return;
+                    const deleteBtn = e.target.closest('.delete-note-btn');
+                    const noteId = parseInt(item.dataset.noteId);
+                    if (deleteBtn) { e.stopPropagation(); this.Notepad.delete(noteId); }
+                    else { this.Notepad.select(noteId); }
+                });
+                this.DOM.notepadExportButton.addEventListener('click', () => this.Notepad.export());
+                
+                document.querySelectorAll('.window').forEach(winEl => {
+                    winEl.querySelector('.window-header').addEventListener('mousedown', (e) => this.Apps.startDrag(e, winEl));
+                    winEl.addEventListener('mousedown', () => this.Apps.bringToFront(winEl));
+                    winEl.querySelector('.close')?.addEventListener('click', (e) => { e.stopPropagation(); this.Apps.closeWindow(winEl); });
+                });
+                document.addEventListener('mousemove', (e) => this.Apps.drag(e));
+                document.addEventListener('mouseup', (e) => this.Apps.stopDrag(e));
+            }
+        };
+
+        FOS.init();
+    });
+    </script>
+</body>
+</html>

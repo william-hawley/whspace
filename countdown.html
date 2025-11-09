@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>whspace</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #121212; /* Dark mode background */
+            color: #f0f0f0; /* Soft white text */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Background with diagonal green highlights */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                135deg,
+                transparent,
+                transparent 10px,
+                #4caf50 10px, /* Green accent from first file */
+                #4caf50 20px
+            );
+            opacity: 0.2;
+            z-index: -1;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.7);
+            max-width: 600px;
+            margin: auto;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: #4caf50; /* Green accent from first file */
+        }
+
+        p {
+            font-size: 1rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        /* Textbox preview */
+        .textbox-preview {
+            border: 1px solid #4caf50; /* Green accent from first file */
+            background: #2a2a2a;
+            color: #f0f0f0; /* Soft white text */
+            padding: 10px;
+            border-radius: 5px;
+            width: 100%;
+            font-size: 1rem;
+            margin-top: 10px;
+            text-align: left;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            p {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>whspace update status</h1>
+        <p>
+            Check what version you're on, what's new and when the next update is expected to launch!
+        </p>
+        <div class="textbox-preview">
+            <span id="countdown">New update coming ... (GMT)</span>
+        </div>
+    </div>
+
+    <script>
+        // ===== EDIT THIS SECTION TO CHANGE COUNTDOWN TIME =====
+        const targetTime = new Date(); // Base target date
+        targetTime.setUTCHours(18, 30, 0, 0);// Set target time (hour, min, sec, millisec)// 
+        targetTime.setUTCFullYear(2025,3,1)
+        // You can change the date by using: //targetTime.setUTCFullYear(2025, 0, 25); // For Jan 25, 2025
+        // ======================================================
+
+        // Countdown timer logic
+        function updateCountdown() {
+            const now = new Date();
+            const timeDiff = targetTime - now;
+
+            if (timeDiff > 0) {
+                const hours = Math.floor((timeDiff / (1000 * 60 * 60)) % 24);
+                const minutes = Math.floor((timeDiff / (1000 * 60)) % 60);
+                const seconds = Math.floor((timeDiff / 1000) % 60);
+
+                document.getElementById("countdown").textContent = 
+                    `New update coming at ${targetTime.toUTCString()} - ${hours}h ${minutes}m ${seconds}s remaining`;
+            } else {
+                document.getElementById("countdown").textContent = 
+                    "The latest update is Live! (Version CURRENT_VERSION - CONTENT ) Next Update is expected by [DATE] (NEW_VERSION)"
+            }
+        }
+
+        // Update countdown every second
+        setInterval(updateCountdown, 1000);
+
+        // Initialize the countdown display
+        updateCountdown();
+    </script>
+</body>
+</html>

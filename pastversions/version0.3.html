@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Welcome to whspace, a website currently in its early development stages. Check back for more updates!">
+    <meta name="keywords" content="whspace, website development, early stages, updates">
+    <meta name="author" content="whspace Developer">
+    <title>whspace</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a; /* Dark mode background */
+            color: #ffffff; /* Dark mode text */
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 60px; /* Space for footer */
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        body.light-mode {
+            background: #f4f4f4; /* Softer light mode background */
+            color: #333333; /* Softer dark text */
+        }
+
+        header {
+            background: #121212; /* Dark mode header */
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #00ff00; /* Green accent */
+            transition: background 0.3s ease, border-bottom 0.3s ease;
+        }
+
+        body.light-mode header {
+            background: #e8e8e8; /* Soft light grey header */
+            border-bottom: 2px solid #8bc34a; /* Softer green accent */
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            color: #00ff00; /* Green accent for text */
+            transition: color 0.3s ease;
+        }
+
+        body.light-mode header h1 {
+            color: #6b8e23; /* Softer green for light mode */
+        }
+
+        /* Toggle and Navigation Buttons */
+        .toggle-btn, .nav-btn {
+            background: #00ff00;
+            color: #1a1a1a;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease, color 0.3s ease;
+            text-align: center;
+            display: inline-block;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .toggle-btn:hover, .nav-btn:hover {
+            background: #00cc00;
+        }
+
+        body.light-mode .toggle-btn, body.light-mode .nav-btn {
+            background: #8bc34a; /* Softer green button */
+            color: #ffffff;
+        }
+
+        nav {
+            background: #1f1f1f; /* Dark mode nav */
+            padding: 10px 20px;
+            border-bottom: 2px solid #00ff00;
+            transition: background 0.3s ease, border-bottom 0.3s ease;
+        }
+
+        body.light-mode nav {
+            background: #ffffff; /* Light mode nav */
+            border-bottom: 2px solid #8bc34a;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        /* Updated Content Section Styling */
+        main .content-section {
+            margin: 40px auto;
+            padding: 20px;
+            max-width: 800px;
+            background: rgba(0, 255, 0, 0.1); /* Green highlight for dark mode */
+            border: 1px solid rgba(0, 255, 0, 0.5);
+            border-radius: 10px;
+            text-align: center;
+            transition: background 0.3s ease, border 0.3s ease;
+        }
+
+        body.light-mode main .content-section {
+            background: rgba(139, 195, 74, 0.1); /* Softer green highlight for light mode */
+            border: 1px solid rgba(139, 195, 74, 0.5); /* Softer green border for light mode */
+        }
+
+        footer {
+            background: #121212; /* Dark mode footer */
+            color: #ffffff;
+            text-align: center;
+            padding: 15px;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            border-top: 2px solid #00ff00;
+            transition: background 0.3s ease, color 0.3s ease, border-top 0.3s ease;
+        }
+
+        body.light-mode footer {
+            background: #e8e8e8; /* Soft footer for light mode */
+            color: #333333;
+            border-top: 2px solid #8bc34a;
+        }
+
+        footer span {
+            color: #00ff00;
+        }
+
+        body.light-mode footer span {
+            color: #6b8e23; /* Softer green in footer */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome</h1>
+    </header>
+
+    <nav>
+        <ul aria-label="Main Navigation">
+            <li>
+                <button class="toggle-btn" onclick="toggleMode()">Toggle Light/Dark Mode</button>
+            </li>
+            <li>
+                <a class="nav-btn" href="#about">About</a>
+            </li>
+            <li>
+                <a class="nav-btn" href="https://whspace.w3spaces.com/original.countdown.html" target="_blank" aria-label="Open updates in a new tab">Updates</a>
+            </li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="about" class="content-section">
+            <h2>About</h2>
+            <p>
+                Welcome to whspace. This website is currently in its early development stages. Check back for more updates on the site's development.
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        <p>Website version <span>0.3</span></p>
+    </footer>
+
+    <script>
+        function toggleMode() {
+            document.body.classList.toggle('light-mode');
+        }
+    </script>
+</body>
+</html>

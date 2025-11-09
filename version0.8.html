@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>whspace</title>
+<style>
+/* General Styling & Variables */
+:root {
+  --primary-color-light: #ffffff;
+  --secondary-color-light: #f4f4f4;
+  --text-color-light: #333333;
+  --accent-color-light: #007bff;
+  --hover-color-light: #0056b3;
+  --primary-color-dark: #1a1a1a;
+  --secondary-color-dark: #2c2c2c;
+  --text-color-dark: #e0e0e0;
+  --accent-color-dark: #64ffda;
+  --hover-color-dark: #00e6a3;
+  --transition-speed: 0.3s;
+}
+
+/* Body styles */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  margin: 0;
+  background-color: var(--primary-color-light);
+  color: var(--text-color-light);
+  transition: background-color var(--transition-speed), color var(--transition-speed);
+}
+
+/* Dark mode styles */
+body.dark-mode {
+  background-color: var(--primary-color-dark);
+  color: var(--text-color-dark);
+}
+
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header & Navigation */
+header {
+  background-color: var(--secondary-color-light);
+  padding: 15px 0;
+  border-bottom: 1px solid #ddd;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: background-color var(--transition-speed);
+}
+
+body.dark-mode header {
+  background-color: var(--secondary-color-dark);
+  border-bottom: 1px solid #444;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.logo {
+  font-size: 1.8em;
+  font-weight: bold;
+  color: var(--accent-color-light);
+  text-decoration: none;
+  transition: color var(--transition-speed);
+}
+
+body.dark-mode .logo {
+  color: var(--accent-color-dark);
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links li {
+  margin-left: 30px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: var(--text-color-light);
+  font-size: 1.1em;
+  transition: color var(--transition-speed);
+}
+
+body.dark-mode .nav-links a {
+  color: var(--text-color-dark);
+}
+
+.nav-links a:hover {
+  color: var(--accent-color-light);
+}
+
+body.dark-mode .nav-links a:hover {
+  color: var(--accent-color-dark);
+}
+
+/* Hamburger menu styles */
+.hamburger {
+  display: none;
+  cursor: pointer;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.hamburger .bar {
+  width: 25px;
+  height: 3px;
+  background-color: var(--text-color-light);
+  transition: all var(--transition-speed);
+}
+
+body.dark-mode .hamburger .bar {
+  background-color: var(--text-color-dark);
+}
+
+/* Welcome section */
+#welcome {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 40px 20px;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeIn 1s forwards 0.5s;
+}
+
+#welcome h1 {
+  font-size: 3.5em;
+  margin-bottom: 20px;
+  color: var(--accent-color-light);
+  transition: color var(--transition-speed);
+}
+
+body.dark-mode #welcome h1 {
+  color: var(--accent-color-dark);
+}
+
+#welcome p {
+  font-size: 1.3em;
+  margin-bottom: 40px;
+  max-width: 600px;
+}
+
+/* Quick links buttons */
+.quick-links a {
+  display: inline-block;
+  margin: 10px;
+  padding: 15px 30px;
+  background-color: var(--accent-color-light);
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 1.1em;
+  transition: background-color var(--transition-speed), transform 0.2s;
+}
+
+body.dark-mode .quick-links a {
+  background-color: var(--accent-color-dark);
+  color: var(--primary-color-dark);
+}
+
+.quick-links a:hover {
+  background-color: var(--hover-color-light);
+  transform: translateY(-3px);
+}
+
+body.dark-mode .quick-links a:hover {
+  background-color: var(--hover-color-dark);
+}
+
+/* Sections styling */
+.section {
+  padding: 60px 20px;
+  border-bottom: 1px solid #eee;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+body.dark-mode .section {
+  border-bottom: 1px solid #333;
+}
+
+.section:last-child {
+  border-bottom: none;
+}
+
+.section h2 {
+  text-align: center;
+  font-size: 2.5em;
+  margin-bottom: 40px;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: var(--secondary-color-light);
+  border: 1px solid #ccc;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5em;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: background-color var(--transition-speed), transform 0.2s, border-color var(--transition-speed);
+  z-index: 1001;
+}
+
+body.dark-mode .theme-toggle {
+  background-color: var(--secondary-color-dark);
+  border: 1px solid #555;
+  color: var(--text-color-dark);
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+}
+
+/* Chatbot container */
+.chatbot-container {
+  position: fixed;
+  bottom: 100px;
+  right: 30px;
+  width: 350px;
+  max-height: 500px;
+  background-color: var(--primary-color-light);
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  display: none; /* Hidden by default */
+  flex-direction: column;
+  z-index: 1002;
+  transition: background-color var(--transition-speed);
+}
+
+body.dark-mode .chatbot-container {
+  background-color: var(--primary-color-dark);
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+}
+
+/* Chat header */
+.chatbot-header {
+  background-color: var(--accent-color-light);
+  color: white;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color var(--transition-speed);
+}
+
+body.dark-mode .chatbot-header {
+  background-color: var(--accent-color-dark);
+  color: var(--primary-color-dark);
+}
+
+/* Close button */
+#close-chat {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2em;
+  cursor: pointer;
+}
+
+body.dark-mode #close-chat {
+  color: var(--primary-color-dark);
+}
+
+/* Chat window */
+.chat-window {
+  flex-grow: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background-color: var(--secondary-color-light);
+  transition: background-color var(--transition-speed);
+}
+
+body.dark-mode .chat-window {
+  background-color: var(--secondary-color-dark);
+}
+
+/* Messages */
+.chat-message {
+  padding: 10px 15px;
+  border-radius: 18px;
+  max-width: 80%;
+  line-height: 1.4;
+}
+
+.user-message {
+  background-color: var(--accent-color-light);
+  color: white;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+body.dark-mode .user-message {
+  background-color: var(--accent-color-dark);
+  color: var(--primary-color-dark);
+}
+
+.bot-message {
+  background-color: #e9e9eb;
+  color: #333;
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+
+body.dark-mode .bot-message {
+  background-color: #444;
+  color: var(--text-color-dark);
+}
+
+/* Chat input area */
+.chat-input {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+  transition: border-color var(--transition-speed);
+}
+
+body.dark-mode .chat-input {
+  border-top: 1px solid #444;
+}
+
+/* Chat input field */
+.chat-input input {
+  flex-grow: 1;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 20px;
+  margin-right: 10px;
+  background-color: var(--primary-color-light);
+  color: var(--text-color-light);
+  transition: background-color var(--transition-speed), color var(--transition-speed), border-color var(--transition-speed);
+}
+
+body.dark-mode .chat-input input {
+  background-color: #333;
+  color: var(--text-color-dark);
+  border: 1px solid #555;
+}
+
+/* Send button */
+.chat-input button {
+  background-color: var(--accent-color-light);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color var(--transition-speed);
+}
+
+body.dark-mode .chat-input button {
+  background-color: var(--accent-color-dark);
+  color: var(--primary-color-dark);
+}
+
+.chat-input button:hover {
+  background-color: var(--hover-color-light);
+}
+
+body.dark-mode .chat-input button:hover {
+  background-color: var(--hover-color-dark);
+}
+
+/* Chat toggle button next to theme toggle */
+.chat-toggle {
+  position: fixed;
+  bottom: 30px;
+  right: 90px; /* Positioned next to theme toggle */
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: var(--accent-color-light);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5em;
+  color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: background-color var(--transition-speed), transform 0.2s;
+  z-index: 1001;
+}
+
+body.dark-mode .chat-toggle {
+  background-color: var(--accent-color-dark);
+  color: var(--primary-color-dark);
+}
+
+.chat-toggle:hover {
+  transform: scale(1.1);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    position: absolute;
+    top: 60px; /* Adjust based on header height */
+    left: 0;
+    background-color: var(--secondary-color-light);
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: background-color var(--transition-speed);
+  }
+
+  body.dark-mode .nav-links {
+    background-color: var(--secondary-color-dark);
+  }
+
+  .nav-links.active {
+    display: flex;
+  }
+
+  .nav-links li {
+    margin: 15px 0;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .hamburger.active .bar:nth-child(1) {
+    transform: rotate(-45deg) translate(-5px, 6px);
+  }
+  .hamburger.active .bar:nth-child(2) {
+    opacity: 0;
+  }
+  .hamburger.active .bar:nth-child(3) {
+    transform: rotate(45deg) translate(-5px, -6px);
+  }
+
+  #welcome h1 {
+    font-size: 2.5em;
+  }
+
+  #welcome p {
+    font-size: 1.1em;
+  }
+
+  .chatbot-container {
+    width: 90%;
+    right: 5%;
+    bottom: 90px; /* Adjust to avoid overlap */
+  }
+
+  .theme-toggle {
+    bottom: 20px;
+    right: 20px;
+  }
+
+  .chat-toggle {
+    bottom: 20px;
+    right: 80px;
+  }
+}
+
+/* Footer styles */
+footer {
+  background-color: var(--secondary-color-light);
+  padding: 20px 0;
+  border-top: 1px solid #ddd;
+  text-align: center;
+  transition: background-color var(--transition-speed);
+  margin-top: auto; /* Push footer to bottom if content is short */
+}
+body.dark-mode footer {
+  background-color: var(--secondary-color-dark);
+  border-top: 1px solid #444;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-container p {
+  margin: 0;
+  font-size: 0.9em;
+  color: var(--text-color-light);
+}
+body.dark-mode .footer-container p {
+  color: var(--text-color-dark);
+}
+
+.social-icons {
+  display: flex;
+  gap: 15px;
+  font-size: 1.5em;
+}
+.social-icons a {
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s;
+}
+.social-icons a:hover {
+  transform: scale(1.2);
+}
+
+/* Modal overlay styles */
+#updateStatusModal {
+  display: none; /* Hidden by default, visible when triggered */
+  position: fixed;
+  z-index: 10000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.5);
+  justify-content: center;
+  align-items: center;
+}
+
+/* Modal content box */
+#updateStatusModal .modal-content {
+  background-color: var(--primary-color-light);
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 500px;
+  width: 90%;
+  position: relative;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  animation: fadeIn 0.3s;
+}
+
+/* Close button inside modal */
+#close-update {
+  position: absolute;
+  top: 10px; right: 15px;
+  background: transparent;
+  border: none;
+  font-size: 1.8em;
+  cursor: pointer;
+  color: #555;
+}
+#close-update:hover {
+  color: #000;
+}
+
+/* Optional: style countdown display */
+#countdown {
+  font-weight: bold;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="https://whspace.w3spaces.com" class="logo">whspace</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#welcome">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="https://whspace.w3spaces.com/wh-OS.html">Newly added: wh-OS (Coming soon)</a></li>
+      <li><a href="https://whspace.w3spaces.com/wh-M-OS.html">Not currently developed: wh-OS Mobile</a></li>
+    </ul>
+    <div class="hamburger" id="hamburger">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <section id="welcome">
+    <h1>Welcome to whspace</h1>
+    <p>Check out what this site has to offer and all the features it provides</p>
+    <div class="quick-links">
+      <!-- Updated link -->
+      <a href="#" id="openUpdateStatus">Update status</a>
+    </div>
+  </section>
+
+  <section id="about" class="section">
+    <div class="container">
+      <h2>About whspace</h2>
+      <p>Whspace is a web project experimenting the capabilities of html scripts and utilises many branches of a website to provide a navigatable full front end site</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-container">
+    <p>2025 whspace. Version 0.8 - All rights reserved.</p>
+    <div class="social-icons">
+      <a href="#" aria-label="Website"></a>
+      <a href="#" aria-label="Twitter"></a>
+      <a href="#" aria-label="Instagram"></a>
+    </div>
+  </div>
+</footer>
+
+<!-- Theme toggle button -->
+<button class="theme-toggle" id="theme-toggle">☀️</button>
+
+<!-- Chat toggle button -->
+<button class="chat-toggle" id="chat-toggle">💬</button>
+
+<!-- Chatbot container -->
+<div class="chatbot-container" id="chatbot-container">
+  <div class="chatbot-header">
+    <span>AI Assistant</span>
+    <button id="close-chat">×</button>
+  </div>
+  <div class="chat-window" id="chat-window">
+    <div class="chat-message bot-message">Hello! How can I help you today?</div>
+  </div>
+  <div class="chat-input">
+    <input type="text" id="chat-input-field" placeholder="Type your message..." />
+    <button id="send-chat-btn">Send</button>
+  </div>
+</div>
+
+<!-- The Popup Modal for Update Status with Countdown -->
+<div id="updateStatusModal" class="modal">
+  <div class="modal-content">
+    <button class="close-btn" id="close-update" aria-label="Close">×</button>
+    <h2>Update Your Status</h2>
+    <!-- Countdown Display -->
+    <div style="margin: 15px 0; font-size: 1.2em; font-weight: bold; text-align: center;">
+      Next Update will be the launch of wh-OS, the brand new web simulation by whspace. It will work like a desktop and will include functional notes, games and system analitics. **Next website update in: <span id="countdown">Loading...</span>
+    </div>
+    <!-- No form needed, only display -->
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // --- Hamburger Menu ---
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('nav-links');
+
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      navLinks.classList.toggle('active');
+    });
+
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (navLinks.classList.contains('active')) {
+          hamburger.classList.remove('active');
+          navLinks.classList.remove('active');
+        }
+      });
+    });
+
+    // --- Dark/Light Mode ---
+    const themeToggle = document.getElementById('theme-toggle');
+    const body = document.body;
+    const currentTheme = localStorage.getItem('theme');
+
+    function setDarkMode(isDark) {
+      if (isDark) {
+        body.classList.add('dark-mode');
+        themeToggle.textContent = '🌙';
+        localStorage.setItem('theme', 'dark');
+      } else {
+        body.classList.remove('dark-mode');
+        themeToggle.textContent = '☀️';
+        localStorage.setItem('theme', 'light');
+      }
+    }
+
+    if (currentTheme === 'dark') {
+      setDarkMode(true);
+    } else {
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setDarkMode(prefersDark);
+    }
+
+    themeToggle.addEventListener('click', () => {
+      setDarkMode(!body.classList.contains('dark-mode'));
+    });
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+      setDarkMode(e.matches);
+    });
+
+    // --- Smooth Scrolling ---
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        if (targetId.length > 1) {
+          const targetElement = document.querySelector(targetId);
+          if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+      });
+    });
+
+    // --- Scroll Animations ---
+    const sections = document.querySelectorAll('.section');
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.15
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    sections.forEach(section => observer.observe(section));
+
+    // --- Chatbot ---
+    const chatToggle = document.getElementById('chat-toggle');
+    const chatbotContainer = document.getElementById('chatbot-container');
+    const closeChat = document.getElementById('close-chat');
+    const chatWindow = document.getElementById('chat-window');
+    const chatInput = document.getElementById('chat-input-field');
+    const sendBtn = document.getElementById('send-chat-btn');
+
+    chatToggle.addEventListener('click', () => {
+      if (chatbotContainer.style.display === 'flex') {
+        chatbotContainer.style.display = 'none';
+      } else {
+        chatbotContainer.style.display = 'flex';
+        chatInput.focus();
+      }
+    });
+
+    closeChat.addEventListener('click', () => {
+      chatbotContainer.style.display = 'none';
+    });
+
+    function addMessage(message, type) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `chat-message ${type}-message`;
+      messageDiv.innerHTML = message; 
+      chatWindow.appendChild(messageDiv);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    // Placeholder for cat images array
+    const catImages = [
+      'https://miro.medium.com/v2/resize:fit:1100/format:webp/0*A7MUqyCLvZDcHkfM.jpg',
+      'https://www.womansworld.com/wp-content/uploads/2024/08/cute-cats.jpg?w=1200&h=675&crop=1&quality=86&strip=all',
+      'https://images.ctfassets.net/ub3bwfd53mwy/5WFv6lEUb1e6kWeP06CLXr/acd328417f24786af98b1750d90813de/4_Image.jpg?w=750',
+      'https://i.pinimg.com/736x/b6/a6/d5/b6a6d50de7eb36065b98ebd254d46cd5.jpg',
+      'https://pbs.twimg.com/profile_images/602729491916435458/hSu0UjMC_400x400.jpg',
+      'https://i.pinimg.com/236x/54/89/2b/54892b03dd705f6594235b701fde9156.jpg',
+      'https://media.tenor.com/X9dWscv4mTMAAAAM/kitty-cute-cat.gif',
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThH1La6FxNulKd2-aihLcMS3mPPODR0vrbCvEckMgJfbot1R37cH6Rkr0LlscORPaiXBo&usqp=CAU',
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRy59WsQz7_oG8HWqQRa-McrVbpLxzINO-R77GnFLsMHAPKnlIsnZCcI58QMQXgXjjNXTU&usqp=CAU',
+      'https://pbs.twimg.com/profile_images/602729491916435458/hSu0UjMC_400x400.jpg',
+      'https://i.pinimg.com/736x/f5/01/d8/f501d81738ae5cb7c5e3fde805a6066b.jpg',
+      'https://i.pinimg.com/236x/b9/e5/e9/b9e5e928c23917283fb221c951ca635b.jpg',
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOIGYv8TjFCQyNzgbmafjD50TwRZKLuJSgEpXN0ULNjm3eVD0Bq4L7XV4dnJHNnsfn11k&usqp=CAU',
+      'https://i.pinimg.com/474x/ab/91/ee/ab91eef95a4b974f3dcb32c497802f08.jpg',
+      'https://i.pinimg.com/236x/d6/b0/fe/d6b0fe53bef76e9d3f563bb329aba51d.jpg'
+    ];
+
+    function getRandomCatImage() {
+      const index = Math.floor(Math.random() * catImages.length);
+      const url = catImages[index];
+      return `<img src="${url}" alt="Cat" style="max-width:100%; height:auto; border-radius:10px;">`;
+    }
+
+    // Basic bot response logic
+    function getBotResponse(userMessage) {
+      const lowerMsg = userMessage.toLowerCase();
+
+      // Check for the special "CATSS" command
+      if (lowerMsg === 'catss') {
+        return getRandomCatImage();
+      }
+
+      if (lowerMsg.includes('hello') || lowerMsg.includes('hi')) {
+        return "Hi there! How can I assist you with this project?";
+      } else if (lowerMsg.includes('features')) {
+        return "This site features a responsive design, dark/light mode, smooth animations, and this chat interface!";
+      } else if (lowerMsg.includes('dark mode')) {
+        return "You can toggle dark/light mode using the ☀️/🌙 button in the bottom right corner.";
+      } else if (lowerMsg.includes('help')) {
+        return "Sure, what do you need help with? You can ask about features or design.";
+      } else if (lowerMsg.includes('bye')) {
+        return "Goodbye! Feel free to ask if you have more questions.";
+      } else {
+        return "I'm still learning! Could you ask something else? Try asking about 'features' or 'dark mode'.";
+      }
+    }
+
+    function handleSendChat() {
+      const message = chatInput.value.trim();
+      if (message) {
+        addMessage(message, 'user');
+        chatInput.value = '';
+        setTimeout(() => {
+          const response = getBotResponse(message);
+          addMessage(response, 'bot');
+        }, 1000);
+      }
+    }
+
+    // Bind send button click
+    document.getElementById('send-chat-btn').addEventListener('click', handleSendChat);
+
+    // Bind Enter key to send message
+    document.getElementById('chat-input-field').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleSendChat();
+      }
+    });
+
+    // --- New: Update Status Modal with Countdown ---
+    const updateModal = document.getElementById('updateStatusModal');
+    const openUpdateBtn = document.getElementById('openUpdateStatus');
+    const closeUpdateBtn = document.getElementById('close-update');
+
+    // Open modal when clicking the link
+    openUpdateBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      updateModal.style.display = 'flex';
+    });
+    // Close modal when clicking the close button
+    closeUpdateBtn.addEventListener('click', () => {
+      updateModal.style.display = 'none';
+    });
+    // Close modal when clicking outside the modal content
+    window.addEventListener('click', (e) => {
+      if (e.target === updateModal) {
+        updateModal.style.display = 'none';
+      }
+    });
+    // No form to handle now, so remove the form submit listener
+
+    // --- Easy-to-Edit Countdown Timer ---
+    // Set your target date here (YYYY-MM-DD HH:MM:SS)
+    const countdownTargetDate = "2025-11-25 9:30:00"; // Change this date as needed
+
+    function updateCountdown() {
+      const countdownElement = document.getElementById('countdown');
+      const targetDate = new Date(countdownTargetDate).getTime();
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance < 0) {
+        countdownElement.innerHTML = "The latest update is Live!";
+        clearInterval(countdownInterval);
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      countdownElement.innerHTML = 
+        `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    // Initialize countdown
+    const countdownInterval = setInterval(updateCountdown, 1000);
+    // Run once immediately
+    updateCountdown();
+  });
+</script>
+</body>
+</html>

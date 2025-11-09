@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Welcome to whspace, a website currently in its early development stages. Check back for more updates!">
+    <meta name="keywords" content="whspace, website development, early stages, updates">
+    <meta name="author" content="whspace Developer">
+    <title>whspace</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a; /* Very dark grey */
+            color: #ffffff;
+            height: 100%;
+        }
+
+        /* Background with diagonal green highlights */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                135deg,
+                transparent,
+                transparent 15px,
+                #00ff00 15px,
+                #00ff00 30px
+            );
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        /* Header */
+        header {
+            background: #121212;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #00ff00;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            color: #00ff00;
+        }
+
+        /* Navigation Menu */
+        nav {
+            background: #1f1f1f;
+            padding: 15px 20px;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        nav ul li {
+            margin: 0 10px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #00ff00;
+            padding: 8px 15px;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        nav ul li a:hover {
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            background: rgba(0, 255, 0, 0.2);
+        }
+
+        /* Main Content Area */
+        main {
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .content-section {
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+            max-width: 800px;
+        }
+
+        .content-section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #00ff00;
+        }
+
+        .content-section p {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .textbox-preview {
+            border: 1px solid #00ff00;
+            background: #2a2a2a;
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: left;
+        }
+
+        /* Footer */
+        footer {
+            background: #121212;
+            color: #ffffff;
+            text-align: center;
+            padding: 15px;
+            border-top: 2px solid #00ff00;
+        }
+
+        footer a {
+            color: #00ff00;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        footer p span {
+            color: #00ff00;
+            font-weight: bold;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            nav ul li {
+                margin: 5px 0;
+            }
+
+            .content-section h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome to whspace</h1>
+    </header>
+
+    <nav>
+        <ul aria-label="Main Navigation">
+            <section class="content-section">
+                <h2>Quick Links</h2>
+                <li><a href="#about">About</a></li>
+                <li><a href="https://whspace.w3spaces.com/original.countdown.html" target="_blank" aria-label="Open updates in a new tab">Updates</a></li>
+            </section>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="about" class="content-section">
+            <h2>About</h2>
+            <p>
+                Welcome to whspace. This website is currently in its early development stages. Check back for more updates on the site's development.
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        <p>Website version <span>0.2.2</span></p>
+    </footer>
+
+    <script>
+        // Dynamically set the current year in the footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>
